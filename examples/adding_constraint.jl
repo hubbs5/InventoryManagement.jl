@@ -14,7 +14,7 @@ set_prop!(net, :bill_of_materials, bom)
 
 #specify parameters, holding costs and capacity, market demands and penalty for unfilfilled demand
 set_props!(net, 1, Dict(:initial_inventory => Dict(:A => 0, :B => Inf), #initial inventory at plant
-                        :inventory_capacity => Dict(:A => Inf, :B => Inf), #inventory capacities set to Inf for scope of this attempt
+                        :inventory_capacity => Dict(:A => Inf, :B => Inf), #inventory capacities set to Inf for all nodes
                         :holding_cost => Dict(:A => 0, :B => 0),
                         :production_cost => Dict(:A => 0.01),
                         :production_time => Dict(:A => 0),
@@ -24,21 +24,24 @@ set_props!(net, 2, Dict(:initial_inventory => Dict(:A => 20, :B => 0) #initial i
                         :inventory_capacity => Dict(:A => Inf, :B => Inf),
                         :holding_cost => Dict(:A => 0), 
                         :demand_distribution => Dict(:A => Normal(5,1)), 
-                        :demand_frequency => Dict(:A => 1))) #added demand frequency to match previous examples with demand distribution
+                        :demand_frequency => Dict(:A => 1), #added demand frequency to match previous examples with demand distribution
+                        :sales_price => Dict(:A => 2), #made direct-to-consumer price slightly less than retail 
+                        :demand_penalty => Dict(:A => 0.01), 
+                        :supplier_priority => Dict(:A => [1]))) #storage receives from plant as supplier
 
 set_props!(net, 3, Dict(:initial_inventory => Dict(:A => 100), #initial inventory at retail
                         :inventory_capacity => Dict(:A => Inf),
                         :holding_cost => Dict(:A => 0.01),
-                        :demand_distribution => Dict(:A => Normal(10,1)),
-                        :demand_frequency => Dict(:A => 1), # =1 to match second value in demand_distribution
+                        :demand_distribution => Dict(:A => Normal(10,1)), #Normal Distribution double that of Storage
+                        :demand_frequency => Dict(:A => 1), # = 1 to match second value in demand_distribution
                         :sales_price => Dict(:A => 3),
                         :demand_penalty => Dict(:A => 0.01),
-                        :supplier_priority => Dict(:A => [1,2])))
+                        :supplier_priority => Dict(:A => [2]))) #retail receives from storage as supplier
 
 #specify sales prices, transportation costs, lead time
 set_props!(net, 1, 2, Dict(:sales_price => Dict(:A => 2),
                           :transportation_cost => Dict(:A => 0.1),
-                          :lead_time => Dict(:A => 0, :B => 0 )))
+                          :lead_time => Dict(:A => 0, :B => 0 ))) #lead time for A and B set to zero
 
 set_props!(net, 2, 3, Dict(:sales_price => Dict(:A => 1),
                           :transportation_cost => Dict(:A => 0.1),
