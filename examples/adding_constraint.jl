@@ -20,7 +20,7 @@ set_props!(net, 1, Dict(:initial_inventory => Dict(:A => 0, :B => Inf), #initial
                         :production_time => Dict(:A => 0),
                         :production_capacity => Dict(:A => Inf)))
 
-set_props!(net, 2, Dict(:initial_inventory => Dict(:A => 20, :B => 0) #initial inventory at storage
+set_props!(net, 2, Dict(:initial_inventory => Dict(:A => 20, :B => 0), #initial inventory at storage
                         :inventory_capacity => Dict(:A => Inf, :B => Inf),
                         :holding_cost => Dict(:A => 0), 
                         :demand_distribution => Dict(:A => Normal(5,1)), #distribution given
@@ -41,7 +41,7 @@ set_props!(net, 3, Dict(:initial_inventory => Dict(:A => 100), #initial inventor
 #specify sales prices, transportation costs, lead time
 set_props!(net, 1, 2, Dict(:sales_price => Dict(:A => 2),
                           :transportation_cost => Dict(:A => 0.1),
-                          :lead_time => Dict(:A => 0, :B => 0 ))) #lead time for A and B set to zero from plant to storage
+                          :lead_time => Dict(:A => [0], :B => [0]))) #lead time for A and B set to zero from plant to storage
 
 set_props!(net, 2, 3, Dict(:sales_price => Dict(:A => 1),
                           :transportation_cost => Dict(:A => 0.1),
