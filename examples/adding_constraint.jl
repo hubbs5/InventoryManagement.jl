@@ -2,10 +2,10 @@ using Distributions
 using InventoryManagement
 
 #define network connectivity
-adj_matrix = [0 0 1;
+adj_matrix = [0 1 0;
               0 0 1;
               0 0 0]
-net = MetaDiGraph(adj_matrix) # 1 & 2 supply 3
+net = MetaDiGraph(adj_matrix) # 1 = plant -> 2 = storage -> 3 = retail
 materials = [:A, :B]
 bom = [0 0; # B -> A
       -1 0]
@@ -13,34 +13,36 @@ set_prop!(net, :materials, materials)
 set_prop!(net, :bill_of_materials, bom)
 
 #specify parameters, holding costs and capacity, market demands and penalty for unfilfilled demand
-set_props!(net, 1, Dict(:initial_inventory => Dict(:A => 75, :B => 100),
-                        :inventory_capacity => Dict(:A => Inf, :B => Inf),
+set_props!(net, 1, Dict(:initial_inventory => Dict(:A => 0, :B => Inf), #initial inventory at plant
+                        :inventory_capacity => Dict(:A => Inf, :B => Inf), #inventory capacities set to Inf for scope of this attempt
                         :holding_cost => Dict(:A => 0, :B => 0),
                         :production_cost => Dict(:A => 0.01),
                         :production_time => Dict(:A => 0),
                         :production_capacity => Dict(:A => Inf)))
 
-set_props!(net, 2, Dict(:initial_inventory => Dict(:A => 125),
-                        :inventory_capacity => Dict(:A => Inf),
-                        :holding_cost => Dict(:A => 0)))
+set_props!(net, 2, Dict(:initial_inventory => Dict(:A => 20, :B => 0) #initial inventory at storage
+                        :inventory_capacity => Dict(:A => Inf, :B => Inf),
+                        :holding_cost => Dict(:A => 0), 
+                        :demand_distribution => Dict(:A => Normal(5,1)), 
+                        :demand_frequency => Dict(:A => 1))) #added demand frequency to match previous examples with demand distribution
 
-set_props!(net, 3, Dict(:initial_inventory => Dict(:A => 100),
+set_props!(net, 3, Dict(:initial_inventory => Dict(:A => 100), #initial inventory at retail
                         :inventory_capacity => Dict(:A => Inf),
                         :holding_cost => Dict(:A => 0.01),
-                        :demand_distribution => Dict(:A => Normal(5,0.5)),
-                        :demand_frequency => Dict(:A => 0.5),
+                        :demand_distribution => Dict(:A => Normal(10,1)),
+                        :demand_frequency => Dict(:A => 1), # =1 to match second value in demand_distribution
                         :sales_price => Dict(:A => 3),
                         :demand_penalty => Dict(:A => 0.01),
                         :supplier_priority => Dict(:A => [1,2])))
 
 #specify sales prices, transportation costs, lead time
-set_props!(net, 1, 3, Dict(:sales_price => Dict(:A => 2),
+set_props!(net, 1, 2, Dict(:sales_price => Dict(:A => 2),
                           :transportation_cost => Dict(:A => 0.1),
-                          :lead_time => Dict(:A => Poisson(3))))
+                          :lead_time => Dict(:A => 0, :B => 0 )))
 
 set_props!(net, 2, 3, Dict(:sales_price => Dict(:A => 1),
                           :transportation_cost => Dict(:A => 0.1),
-                          :lead_time => Dict(:A => Poisson(7))))
+                          :lead_time => Dict(:A => Poisson(3))))
 
 #define reorder policy parameters
 policy = :sS #(s, S) policy
